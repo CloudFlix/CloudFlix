@@ -10,19 +10,20 @@ public class DirectorFileGenerator {
 		BufferedReader br = new BufferedReader(new FileReader("./input/directors4f.dat")); 
 
 		FileWriter fw = new FileWriter(new File("./input/directors4a.dat"));
-		BufferedWriter bw = new BufferedWriter(fw);		
+				
 		String line;
 		
 		String director= new String();
 		while( (line = br.readLine()) !=null){
 		line=line.replaceAll("^[|]", "");
-		bw.write(line+"\n");
+		fw.write(line+"\n");
 			
 			
 			
 			
 	}
-		bw.close();
+fw.flush();		
+fw.close();
 		System.out.println("DONE!!!");
 }
 }
