@@ -1,0 +1,44 @@
+__author__ = 'vanamali'
+import os,sys
+import shlex
+from collections import defaultdict
+import string
+import re
+from random import shuffle
+from collections import Counter
+import math,cPickle as pickle
+
+
+def multinomial_testing(modelfile,testlines,predictionfile):
+  linecount = 0
+  [worddict, prior_dict, cond_prob] = pickle.load( open( modelfile, "rb" ) )
+  scorefile = open(predictionfile,"w")
+  scorefile.write("Id,Category\n")
+  for line in testlines:
+    linecount += 1
+    line =  line.strip()
+    words = (line[1:-1]).split(" ")
+
+    scoredict = defaultdict(float)
+    for cl in [0,1]:
+      scoredict[cl] =math.log(prior_dict[cl],2)
+      # removing the punctuation words
+      for word in words :
+        if word not in string.punctuation():
+          if cond_prob[cl].get([word]) != None: # word seen during training.
+            scoredict[cl] =scoredict[cl]+ math.log(cond_prob[cl][word],2)
+
+    score = max(scoredict , key=scoredict.get)
+    scorefile.write(str(linecount)+","+str(score)+"\n")
+  scorefile.close()
+
+# Script main file.
+if len(sys.argv) !=4:
+  print
+  '''
+  Usage error: Use python test.py model_file test_file.csv prediction_file
+  '''
+  fopen = open(sys.argv[2])
+  testlines = fopen.readlines()
+
+  multinomial_testing(sys.argv[1],testlines,sys.argv[3])

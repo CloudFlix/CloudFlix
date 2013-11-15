@@ -1,0 +1,93 @@
+__author__ = 'vanamali'
+import os
+import shlex
+from collections import defaultdict
+import string
+import re
+from random import shuffle
+from collections import Counter
+import math
+import sys
+import cPickle as pickle
+
+# splitting the data into training and testing.
+def preprocess(trainlines):
+  worddict = defaultdict(lambda: defaultdict(dict))
+  gtruth_dict = defaultdict(int)
+  index = 0
+  for line in trainlines:
+    line = line.strip()
+    index = index+1
+    gtruth_dict[index]= int(line[0])
+    commentwords = (line[3:-1]).split(" ")
+    for word in commentwords:
+      worddict[int(line[0])][word]+= 1
+
+  # removing punctuation as key words
+  for punct in string.punctuation:
+    for cl in [0,1]:
+      if worddict[cl].has_key(punct):
+        del worddict[cl][punct]
+
+  '''
+  # removing numerics as key words
+  # ['123132', '785', '78.43', '78-43', '5-32', '2.50-3.0', '1-1/2']
+  exp_allnums = re.compile('^[-./]*[0-9][-0-9.,:/]+$')  # re.compile('^[-./]*[0-9][-0-9./]*$')
+  allnumset = [m.group(0) for word in worddict.iterkeys() for m in [exp_allnums.search(word)] if m ]
+  print "all num: ",allnumset
+
+  # identify exclusive alphanumeric
+  exp_wordnums = re.compile('^[A-Za-z]+[0-9]+[-/0-9.A-Za-z]*$') #re.compile('^[A-Za-z]+?[0-9]+[-/0-9.A-Za-z]*$')
+  wordnumset = [m.group(0) for word in worddict.iterkeys() for m in [exp_wordnums.search(word)] if m ]
+  print "alphanumeric: ",wordnumset
+
+  # identify exclusive numericalpha
+  exp_numwords = re.compile('^[0-9]?[0-9]+[-./A-Za-z]+$')
+  numwordset = [m.group(0) for word in worddict.iterkeys() for m in [exp_numwords.search(word)] if m ]
+  print "numeric-alpha: ",numwordset
+
+  # identify words with hyphen
+  exp_hyphenwords = re.compile('^[A-Za-z.]+[-]+[-A-Za-z]*$')
+  hyphenwordset = [m.group(0) for word in worddict.iterkeys() for m in [exp_hyphenwords.search(word)] if m ]
+  print "hyphen-word: ",type(hyphenwordset)
+
+  # splitting the hyphenated word to add to dictionary of each word
+  for hyphenword in hyphenwordset:
+    words = hyphenword.split("-")
+    for word in words:
+      worddict[word] += worddict[hyphenword]
+  '''
+  return [worddict, gtruth_dict]
+
+# multinomial method
+def multinomial_training(worddict,gtruth_dict,readlines,model_param):
+  count = Counter(gtruth_dict.values())
+  prior_yes = float(count[1])/len(readlines)
+  prior_no = float(count[0])/len(readlines)
+  cond_prob = defaultdict(lambda : defaultdict(dict))
+  prior_dict =defaultdict(float)
+  for cl in [0,1]:
+    prior_dict[cl] = float(count[cl])/len(readlines)
+    for word in worddict[cl]:
+      cond_prob[cl][word] = float(worddict[cl][word]+1)
+    sum_ = sum(worddict[cl].itervalues())
+    for word in worddict[cl]:
+      cond_prob[cl][word] = float(worddict[cl][word]+1)/sum_
+
+  fopen = open(model_param,"wb")
+  pickle.dump([worddict, prior_dict, cond_prob],fopen)
+  fopen.close()
+  #return [worddict, prior_dict, cond_prob]
+
+
+if len(sys.argv) !=3:
+  print
+  '''
+  Usage error: Use python train.py training.csv model_file
+  '''
+  fopen = open(sys.argv[1])
+  trainlines = fopen.readlines()
+  [worddict,gtruth_dict] = preprocess(trainlines[1:])
+  multinomial_training(worddict,gtruth_dict,trainlines[1:],sys.argv[2])
+
+

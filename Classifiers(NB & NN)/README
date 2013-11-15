@@ -1,0 +1,18 @@
+1. Naive Bayes Method.
+2. Nearest Neighbour Classifier.
+
+For each method there are 3 main scripts . (a) train.py (b) test.py (c) driver.py
+
+The train.py writes calculates the parameters of model and stores in file.
+The train.py takes two arguments a. input_file b. model_file
+The input_file is the "train.csv" file with classified data.
+The model_file is where the model parameters are stored after training.
+
+The test.py writes calculates the class of input lines.
+The test.py takes three arguments. a.model_file b.test_file c.prediction_file
+The model_file is the model parameters written by train.py file.
+The test_file is the "test.csv" file to classify.
+The prediction_file is the file where the output of test.py is written as per the given format.
+
+The driver.py has been written to split the input gold data with 80% to 20% to estimate the error in the method.
+
