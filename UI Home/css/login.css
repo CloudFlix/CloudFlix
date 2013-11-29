@@ -1,7 +1,7 @@
 	  .container {
 	  /*border: red 4px dashed; border-bottom: blue 4px solid;*/
 	    width: 900px;
-		height: 180px;
+		height: 190px;
 		display: inline-block;
 		
       }
@@ -11,7 +11,8 @@
 	  /* border: red 4px dashed; border-bottom: blue 4px solid;*/
 	  margin-top: 10px;
 	  margin-right:10px;
-	   max-width : 40%;
+      margin-bottom:10px;	  
+	  max-width : 40%;
 	   float :right;
         background-color: #fff;
         -webkit-border-radius: 10px 10px 10px 10px;
